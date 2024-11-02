@@ -11,7 +11,7 @@ esto no afecta a la jugabilidad ya que solo se podra interactuar con la ventana 
 
 ## Instalación
 
-1. Descarga el instalador desde la [página de Releases](link-a-tu-release).
+1. Descarga el instalador desde la [página de Releases](https://github.com/ELKEVINQ/twitch-hoverchat/releases).
 2. Ejecuta el instalador y sigue las instrucciones en pantalla.
 
 ## Uso
