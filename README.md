@@ -8,6 +8,7 @@ esto no afecta a la jugabilidad ya que solo se podra interactuar con la ventana 
 - Visualiza el chat de un canal de Twitch en tiempo real.
 - Interfaz ligera y fácil de usar.
 - Se ocultan los botones de la ventana cuando no tiene foco.
+- Abre más de un chat a la vez
 
 ## Instalación
 
@@ -29,7 +30,7 @@ Proximamente me centrare en mejorar la interfaz, permitir más fondos y customiz
 
 ## Licencia
 
-Este proyecto está licenciado bajo la [MIT License](LICENSE).
+Este proyecto está licenciado bajo la [GNU V3.0](LICENSE).
 
 ## Contacto
 
