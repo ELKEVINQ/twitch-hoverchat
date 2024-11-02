@@ -11,9 +11,8 @@ esto no afecta a la jugabilidad ya que solo se podra interactuar con la ventana 
 
 ## Instalación
 
-1. Descarga el instalador desde la [página de Releases](https://github.com/ELKEVINQ/twitch-hoverchat/releases).
-2. Ejecuta el instalador y sigue las instrucciones en pantalla.
-- Puedes descargar la última versión (1.0.0) desde [acá](https://github.com/ELKEVINQ/twitch-hoverchat/releases/download/1.0.1/Twitch.HoverChat.Setup.1.0.0.exe)
+1. Descarga el instalador desde la [página de Releases](https://github.com/ELKEVINQ/twitch-hoverchat/releases)
+- O puedes descargar la última versión (1.0.0) desde [acá](https://github.com/ELKEVINQ/twitch-hoverchat/releases/download/1.0.1/Twitch.HoverChat.Setup.1.0.0.exe)
 
 ## Uso
 
