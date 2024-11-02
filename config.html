@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Configurar Canal</title>
+    <style>
+        /* Estilos generales */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Ocultar barras de desplazamiento */
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Botón de cierre */
+        #closeButton {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        #closeButton:hover {
+            background-color: #c0392b;
+        }
+
+        /* Estilos del contenedor principal */
+        .container {
+            width: 100%;
+            max-width: 280px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            position: relative;
+        }
+
+        /* Título */
+        h2 {
+            margin: 0 0 20px;
+            font-size: 20px;
+            color: #333;
+        }
+
+        /* Estilos de entrada */
+        #channelInput {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        #channelInput:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        /* Botón de guardar */
+        #saveButton {
+            width: 100%;
+            padding: 10px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        #saveButton:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button id="closeButton" onclick="closeWindow()">×</button>
+        <h2>Configurar Canal de Twitch</h2>
+        <input type="text" id="channelInput" placeholder="Nombre del canal" />
+        <button id="saveButton" onclick="saveChannel()">Guardar</button>
+    </div>
+
+    <script>
+        function saveChannel() {
+            const channel = document.getElementById('channelInput').value.trim();
+            if (channel) {
+                window.electronAPI.saveChannel(channel);
+            } else {
+                alert('Por favor, ingresa el nombre del canal.');
+            }
+        }
+
+        function closeWindow() {
+            window.electronAPI.closeConfigWindow();
+        }
+
+        // Poner el canal guardado en el campo de entrada al cargar
+        window.electronAPI.onLoadChannel((channel) => {
+            document.getElementById('channelInput').value = channel;
+        });
+    </script>
+</body>
+</html>
