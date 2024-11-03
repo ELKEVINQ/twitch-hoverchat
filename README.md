@@ -5,6 +5,7 @@ esto no afecta a la jugabilidad ya que solo se podra interactuar con la ventana 
 
 ## Características
 
+- Actualizaciones automaticas en nuevas caracteristicas
 - Visualiza el chat de un canal de Twitch en tiempo real.
 - Interfaz ligera y fácil de usar.
 - Se ocultan los botones de la ventana cuando no tiene foco.
@@ -13,7 +14,7 @@ esto no afecta a la jugabilidad ya que solo se podra interactuar con la ventana 
 ## Instalación
 
 1. Descarga el instalador desde la [página de Releases](https://github.com/ELKEVINQ/twitch-hoverchat/releases)
-- O puedes descargar la última versión (1.0.0) desde [acá](https://github.com/ELKEVINQ/twitch-hoverchat/releases/download/1.0.1/Twitch.HoverChat.Setup.1.0.1.exe)
+- O puedes descargar la última versión (1.0.1) desde [acá](https://github.com/ELKEVINQ/twitch-hoverchat/releases/download/1.0.1/Twitch.HoverChat.Setup.1.0.1.exe)
 
 ## Uso
 
