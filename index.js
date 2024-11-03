@@ -1,6 +1,14 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
-const fs = require('fs');
-const path = require('path');
+import { app, BrowserWindow, ipcMain } from 'electron';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import pkg from 'electron-updater';
+
+const { autoUpdater } = pkg;
+
+// Definimos __filename y __dirname para que estén disponibles
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const configPath = path.join(app.getPath('userData'), 'config.json');
 
@@ -17,13 +25,14 @@ function loadConfig() {
 }
 
 let config = loadConfig();
+let configWindow, chatWindow; // Guardamos las referencias de las ventanas
 
 function createConfigWindow() {
-    let configWindow = new BrowserWindow({
-        width: 320,           // Ancho exacto para el contenido
-        height: 250,          // Altura exacta para el contenido
-        resizable: false,     // Deshabilitar redimensionamiento
-        frame: false,         // Sin barra de herramientas
+    configWindow = new BrowserWindow({
+        width: 320,
+        height: 250,
+        resizable: false,
+        frame: false,
         webPreferences: {
             preload: path.join(__dirname, 'config-preload.js'),
             contextIsolation: true,
@@ -34,10 +43,10 @@ function createConfigWindow() {
     configWindow.loadFile('config.html');
 
     configWindow.webContents.on('did-finish-load', () => {
-        configWindow.setSize(320, 250); // Ajuste exacto al contenido después de cargar
-        configWindow.center();          // Centrar la ventana en la pantalla
-        configWindow.setMaximumSize(320, 250); // Establecer tamaño máximo
-        configWindow.setMinimumSize(320, 250); // Establecer tamaño mínimo
+        configWindow.setSize(320, 250);
+        configWindow.center();
+        configWindow.setMaximumSize(320, 250);
+        configWindow.setMinimumSize(320, 250);
         configWindow.webContents.send('load-channel', config.channel);
     });
 
@@ -45,7 +54,7 @@ function createConfigWindow() {
         config.channel = channel;
         saveConfig(config);
         configWindow.close();
-        createChatWindow(); // Abrir ventana del chat después de guardar el canal
+        createChatWindow();
     });
 
     ipcMain.on('close-config-window', () => {
@@ -58,7 +67,7 @@ function createConfigWindow() {
 }
 
 function createChatWindow() {
-    let chatWindow = new BrowserWindow({
+    chatWindow = new BrowserWindow({
         width: 400,
         height: 600,
         frame: false,
@@ -98,11 +107,56 @@ function createChatWindow() {
     });
 }
 
-app.whenReady().then(createConfigWindow);
+function createSettingsWindow() {
+    const settingsWindow = new BrowserWindow({
+        width: 400,
+        height: 500,
+        title: 'Configuración',
+        resizable: false, // Desactiva la opción de maximizar
+        frame: true, // Mantiene los botones de cerrar y minimizar
+        webPreferences: {
+            preload: path.join(__dirname, 'settings-preload.js'),
+            contextIsolation: true,
+            nodeIntegration: false,
+        },
+    });
+
+    settingsWindow.setMenuBarVisibility(false); // Oculta el menú de la ventana
+
+    settingsWindow.loadFile('settings.html');
+}
+
+// Evento para abrir la ventana de configuración cuando se recibe el mensaje desde el renderizador
+ipcMain.on('open-settings', () => {
+    console.log('Evento open-settings recibido'); // Verifica si el evento es capturado
+    createSettingsWindow();
+});
+
+ipcMain.on('update-settings', (event, settings) => {
+    if (chatWindow) {
+        chatWindow.setOpacity(settings.transparency / 100); // Aplica transparencia
+        chatWindow.webContents.send('update-background-color', settings.backgroundColor); // Cambia el color de fondo
+    }
+});
+
+// Evento para manejar actualizaciones
+autoUpdater.on('updateAvailable', () => {
+    console.log('Update available');
+});
+
+autoUpdater.on('updateDownloaded', () => {
+    autoUpdater.quitAndInstall(); // Reiniciar y aplicar la actualización
+});
+
+app.whenReady().then(() => {
+    createConfigWindow();
+    autoUpdater.checkForUpdates(); // Buscar actualizaciones al iniciar la aplicación
+});
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit();
 });
+
 app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
         createConfigWindow();

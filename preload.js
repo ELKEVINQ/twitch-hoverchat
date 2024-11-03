@@ -1,16 +1,15 @@
 const { ipcRenderer } = require('electron');
 
 window.addEventListener('DOMContentLoaded', () => {
-    // Inyectar CSS para la barra superior y el contenido del chat
+    // Inserta los estilos adicionales
     const style = document.createElement('style');
     style.innerHTML = `
-        /* Barra superior personalizada */
         .custom-titlebar {
             width: 100%;
-            height: 28px; /* Reducir altura de la barra superior */
+            height: 28px;
             background-color: rgba(0, 0, 0, 0.9);
             color: white;
-            font-size: 16px; /* Reducir tamaño de la fuente a 16px */
+            font-size: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -25,34 +24,77 @@ window.addEventListener('DOMContentLoaded', () => {
             opacity: 0;
             pointer-events: none;
         }
-        .close-button {
+        .close-button, .menu-button {
             color: white;
-            background-color: rgba(255, 0, 0, 0.8);
             border: none;
-            border-radius: 3px;
-            padding: 1px 6px;
-            font-size: 14px;
+            background: none;
+            padding: 0;
             position: absolute;
-            right: 8px;
-            top: 6px;
             cursor: pointer;
             -webkit-app-region: no-drag;
+        }
+        .close-button {
+            right: 8px;
+            top: 6px;
+            background-color: rgba(255, 0, 0, 0.8);
+            border-radius: 3px;
+            padding: 2px 6px;
         }
         .close-button:hover {
             background-color: rgba(255, 0, 0, 1);
         }
-
-        /* Contenedor del chat */
+        .menu-button {
+            left: 8px;
+            top: 6px;
+            width: 20px;
+            height: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+        .menu-button div {
+            width: 100%;
+            height: 3px;
+            background-color: white;
+        }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 28px;
+            left: 8px;
+            background-color: white;
+            color: black;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            width: 150px;
+            z-index: 100;
+            flex-direction: column;
+        }
+        .dropdown-menu.show {
+            display: flex;
+        }
+        .dropdown-menu button {
+            background: none;
+            border: none;
+            padding: 10px;
+            text-align: left;
+            cursor: pointer;
+            width: 100%;
+            color: black;
+        }
+        .dropdown-menu button:hover {
+            background-color: #f0f0f0;
+        }
         .chat-container {
             position: absolute;
-            top: 28px; /* Ajustar espacio debajo de la barra superior */
+            top: 28px;
             left: 0;
             right: 0;
             bottom: 0;
             overflow: hidden;
         }
-
-        /* Escalado del iframe del chat */
         iframe {
             border: none;
             width: 333.33%;
@@ -64,15 +106,45 @@ window.addEventListener('DOMContentLoaded', () => {
     `;
     document.head.appendChild(style);
 
-    // Crear barra superior
     const titleBar = document.createElement('div');
     titleBar.className = 'custom-titlebar';
 
-    // Texto de la cabecera
     const titleText = document.createElement('span');
     titleText.id = 'titleText';
     titleText.textContent = 'Twitch Chat Viewer';
     titleBar.appendChild(titleText);
+
+    // Botón Menú
+    const menuButton = document.createElement('button');
+    menuButton.className = 'menu-button';
+    menuButton.innerHTML = '<div></div><div></div><div></div>';
+    titleBar.appendChild(menuButton);
+
+    // Menú desplegable
+    const dropdownMenu = document.createElement('div');
+    dropdownMenu.className = 'dropdown-menu';
+
+    const configureOption = document.createElement('button');
+    configureOption.textContent = 'Configurar';
+    configureOption.onclick = () => {
+        ipcRenderer.send('open-settings'); // Enviar evento al proceso principal
+        dropdownMenu.classList.remove('show');
+    };
+
+    const changeChannelOption = document.createElement('button');
+    changeChannelOption.textContent = 'Cambiar canal';
+    changeChannelOption.onclick = () => {
+        console.log('Cambiar canal seleccionado');
+        dropdownMenu.classList.remove('show');
+    };
+
+    dropdownMenu.appendChild(configureOption);
+    dropdownMenu.appendChild(changeChannelOption);
+    titleBar.appendChild(dropdownMenu);
+
+    menuButton.onclick = () => {
+        dropdownMenu.classList.toggle('show');
+    };
 
     // Botón de cierre
     const closeButton = document.createElement('button');
@@ -85,7 +157,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
     document.body.appendChild(titleBar);
 
-    // Contenedor del chat
     const chatContainer = document.createElement('div');
     chatContainer.className = 'chat-container';
     document.body.appendChild(chatContainer);
@@ -93,20 +164,19 @@ window.addEventListener('DOMContentLoaded', () => {
     const iframe = document.createElement('iframe');
     chatContainer.appendChild(iframe);
 
-    // Escuchar el canal desde el proceso principal y cargarlo en el iframe
     ipcRenderer.on('load-channel', (event, channel) => {
-        // Actualizar la URL del iframe con el canal
         iframe.src = `https://www.giambaj.it/twitch/jchat/v2/?channel=${encodeURIComponent(channel)}&fade=true&animate=true&hide_commands=true&hide_badges=true&font_size=12&theme=dark`;
-        
-        // Actualizar el texto de la cabecera con el nombre del canal
         titleText.textContent = `Twitch Chat: ${channel}`;
     });
 
-    // Mostrar u ocultar la barra superior según el foco
     ipcRenderer.on('hide-titlebar', () => {
         titleBar.classList.add('hidden');
     });
     ipcRenderer.on('show-titlebar', () => {
         titleBar.classList.remove('hidden');
+    });
+
+    ipcRenderer.on('update-background-color', (event, color) => {
+        document.body.style.backgroundColor = color;
     });
 });
