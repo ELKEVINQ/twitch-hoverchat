@@ -20,7 +20,11 @@ function loadConfig() {
     try {
         return JSON.parse(fs.readFileSync(configPath));
     } catch (error) {
-        return { channel: "" }; // Valor por defecto si no hay configuración
+        return {
+            channel: "",
+            service: "twitch" // valor por defecto
+        };
+        ; // Valor por defecto si no hay configuración
     }
 }
 
@@ -50,12 +54,17 @@ function createConfigWindow() {
         configWindow.webContents.send('load-channel', config.channel);
     });
 
-    ipcMain.once('save-channel', (event, channel) => {
+    ipcMain.once('save-channel', (event, data) => {
+        const { channel, service } = data;
+
         config.channel = channel;
+        config.service = service;
+
         saveConfig(config);
         configWindow.close();
         createChatWindow();
     });
+
 
     ipcMain.on('close-config-window', () => {
         configWindow.close();
@@ -77,14 +86,18 @@ function createChatWindow() {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
             nodeIntegration: false,
-        },
+            webviewTag: true // 🔥 NECESARIO PARA KICK
+        }
     });
 
     chatWindow.loadURL('data:text/html;charset=utf-8,<html><body></body></html>');
     chatWindow.setAlwaysOnTop(true);
 
     chatWindow.webContents.on('did-finish-load', () => {
-        chatWindow.webContents.send('load-channel', config.channel);
+        chatWindow.webContents.send('load-channel', {
+            channel: config.channel,
+            service: config.service
+        });
     });
 
     ipcMain.on('close-window', () => {

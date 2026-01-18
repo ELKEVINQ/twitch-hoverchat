@@ -161,12 +161,57 @@ window.addEventListener('DOMContentLoaded', () => {
     chatContainer.className = 'chat-container';
     document.body.appendChild(chatContainer);
 
-    const iframe = document.createElement('iframe');
-    chatContainer.appendChild(iframe);
+    let chatElement = null;
 
-    ipcRenderer.on('load-channel', (event, channel) => {
-        iframe.src = `https://www.giambaj.it/twitch/jchat/v2/?channel=${encodeURIComponent(channel)}&fade=true&animate=true&hide_commands=true&hide_badges=true&font_size=12&theme=dark`;
-        titleText.textContent = `Twitch Chat: ${channel}`;
+    function clearChat() {
+        if (chatElement) {
+            chatElement.remove();
+            chatElement = null;
+        }
+    }
+
+    ipcRenderer.on('load-channel', (event, data) => {
+        if (!data || !data.channel || !data.service) {
+            console.warn('load-channel inválido:', data);
+            return;
+        }
+
+        const { channel, service } = data;
+
+        const kickTransmitionLink =
+            `https://kick.com/popout/${encodeURIComponent(channel)}/chat`;
+
+        const twitchTransmitionLink =
+            `https://www.giambaj.it/twitch/jchat/v2/?channel=${encodeURIComponent(channel)}&fade=true&animate=true&hide_commands=true&hide_badges=true&font_size=12&theme=dark`;
+
+        clearChat();
+
+        switch (service) {
+            case 'twitch': {
+                const iframe = document.createElement('iframe');
+                iframe.src = twitchTransmitionLink;
+                chatElement = iframe;
+                titleText.textContent = `Twitch Chat: ${channel}`;
+                break;
+            }
+
+            case 'kick': {
+                const webview = document.createElement('webview');
+                webview.src = kickTransmitionLink;
+                webview.style.width = '100%';
+                webview.style.height = '100%';
+                webview.setAttribute('allowpopups', 'true');
+                chatElement = webview;
+                titleText.textContent = `Kick Chat: ${channel}`;
+                break;
+            }
+
+            default:
+                console.warn('Servicio desconocido:', service);
+                return;
+        }
+
+        chatContainer.appendChild(chatElement);
     });
 
     ipcRenderer.on('hide-titlebar', () => {

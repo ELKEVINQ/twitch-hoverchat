@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Configurar Canal</title>
@@ -10,10 +11,13 @@
             padding: 0;
             box-sizing: border-box;
         }
-        html, body {
+
+        html,
+        body {
             width: 100%;
             height: 100%;
-            overflow: hidden; /* Ocultar barras de desplazamiento */
+            overflow: hidden;
+            /* Ocultar barras de desplazamiento */
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
             display: flex;
@@ -98,10 +102,18 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <button id="closeButton" onclick="closeWindow()">×</button>
-        <h2>Configurar Canal de Twitch</h2>
+        <h2>Configurar chat de transmision</h2>
+        <form>
+            <p>Seleccione el servicio de transmision</p>
+            <input type="radio" id="twitch" name="servicio" value="twitch">
+            <label for="twitch">Twitch</label>
+            <input type="radio" id="kick" name="servicio" value="kick">
+            <label for="kick">Kick</label>
+        </form>
         <input type="text" id="channelInput" placeholder="Nombre del canal" />
         <button id="saveButton" onclick="saveChannel()">Guardar</button>
     </div>
@@ -109,20 +121,42 @@
     <script>
         function saveChannel() {
             const channel = document.getElementById('channelInput').value.trim();
-            if (channel) {
-                window.electronAPI.saveChannel(channel);
-            } else {
-                alert('Por favor, ingresa el nombre del canal.');
+            const serviceInput = document.querySelector('input[name="servicio"]:checked');
+
+            if (!serviceInput) {
+                alert('Por favor, selecciona un servicio de transmisión.');
+                return;
             }
+
+            if (!channel) {
+                alert('Por favor, ingresa el nombre del canal.');
+                return;
+            }
+
+            const service = serviceInput.value;
+
+            window.electronAPI.saveChannel({
+                channel,
+                service
+            });
         }
 
         function closeWindow() {
             window.electronAPI.closeConfigWindow();
         }
 
-        // Poner el canal guardado en el campo de entrada al cargar
-        window.electronAPI.onLoadChannel((channel) => {
-            document.getElementById('channelInput').value = channel;
+        // Al cargar datos guardados
+        window.electronAPI.onLoadChannel((data) => {
+            if (!data) return;
+
+            document.getElementById('channelInput').value = data.channel || '';
+
+            if (data.service) {
+                const radio = document.querySelector(
+                    `input[name="servicio"][value="${data.service}"]`
+                );
+                if (radio) radio.checked = true;
+            }
         });
     </script>
 </body>
